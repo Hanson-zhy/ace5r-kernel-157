@@ -22,6 +22,11 @@ on:
           - 'ksu'
           - 'bakasu'
           - 'none'
+      gzvm_enable:
+        description: '是否编译 gzvm(GenieZone VM)模块'
+        required: true
+        type: boolean
+        default: 'true'
       susfs_enable:
         description: '是否开启SUSFS(挂载隐藏;不需要可关闭)'
         required: true
@@ -400,7 +405,7 @@ jobs:
         run: |
           cd kernel_workspace
           echo "CONFIG_BBG=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_MTK_GZVM=m" >> ./common/arch/arm64/configs/gki_defconfig
+          if [[ "${{ github.event.inputs.gzvm_enable }}" == "true" ]]; then echo "CONFIG_MTK_GZVM=m" >> ./common/arch/arm64/configs/gki_defconfig; fi >> ./common/arch/arm64/configs/gki_defconfig
           cd ./common
           curl -sSL https://github.com/cctv18/Baseband-guard/raw/master/setup.sh | bash
           sed -i '/^config LSM$/,/^help$/{ /^[[:space:]]*default/ { /baseband_guard/! s/selinux/selinux,baseband_guard/ } }' security/Kconfig
@@ -454,6 +459,7 @@ jobs:
           df -h
 
       - name: 编译gzvm模块
+        if: inputs.gzvm_enable
         run: |
           cd kernel_workspace/common
           make -j$(nproc) LLVM=1 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- CC="ccache clang" LD=ld.lld O=out KCFLAGS+=-O2 KCFLAGS+=-Wno-error WERROR=0 HOSTCFLAGS=-Wno-error modules
@@ -528,6 +534,7 @@ jobs:
           archive: false
 
       - name: 上传gzvm模块
+        if: inputs.gzvm_enable
         uses: actions/upload-artifact@v7
         with:
           name: gzvm-modules-${{ github.run_id }}
