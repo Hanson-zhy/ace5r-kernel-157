@@ -113,6 +113,7 @@ jobs:
           aria2c -s16 -x16 -k1M -q https://github.com/Hanson-zhy/android_kernel_modules_and_devicetree_oneplus_mt6989/archive/refs/heads/oneplus/mt6989_v_15.0.2_ace5_race.tar.gz -o vendor.tar.gz
           mkdir -p vendor_src && tar -xf vendor.tar.gz -C vendor_src --strip-components=1
           rm -f vendor.tar.gz
+          [ -d vendor_src/vendor ] && cp -a vendor_src/vendor ./vendor
 
           tar -xf ref134.tar.gz -C ref134 --strip-components=1
           unzip -q clang.zip -d clang20
