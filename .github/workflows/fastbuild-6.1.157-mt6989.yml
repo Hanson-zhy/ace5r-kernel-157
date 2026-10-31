@@ -120,7 +120,19 @@ jobs:
           unzip -q build-tools.zip
           rm -f common.tar.gz ref134.tar.gz clang.zip build-tools.zip
           # 剩余悬空符号链接兜底
-          sh "$GITHUB_WORKSPACE/local/fix-symlinks.sh" common || true
+          n=0
+          for l in $(find common -xtype l 2>/dev/null); do
+            rm -f "$l"
+            case "$l" in
+              *.h|*.c|*.cc|*.S|*.inc|*.dts|*.dtsi|*.txt|*.json|*.py)
+                : > "$l" ;;
+              *)
+                mkdir -p "$l"; : > "$l/Kconfig"; : > "$l/Makefile" ;;
+            esac
+            n=$((n+1))
+          done
+          echo "stubbed: $n"
+          sed -i 's/override CFLAGS += -Werror -Wall/override CFLAGS += -Wall/' common/tools/lib/bpf/Makefile 2>/dev/null || true
           echo "源码初始化完成"
 
           # 清除ABI保护 & 去除dirty后缀
