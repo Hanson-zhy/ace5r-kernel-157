@@ -575,9 +575,46 @@ jobs:
         run: |
           set -e
           TAG="v6.1.157-mt6989-$(date +%Y%m%d-%H%M)"
+          cat > /tmp/notes.md <<'EOF'
+          # 一加 Ace 5 竞速版 (MT6989) 6.1.157 OKI 内核
+
+          全变体（5 管理器 × SUSFS/GZVM 组合）。
+
+          ## 管理器对应
+          | 文件名前缀 | 源码 | 配套管理器 |
+          |---|---|---|
+          | SukiSU | ReSukiSU | ReSukiSU / BakaSU 管理器 |
+          | SukiSUUltra | SukiSU-Ultra（固定 5da5299 + SUSFS 0c6766b） | SukiSU 管理器 v4.3.0 |
+          | BakaSU | BakaSU | BakaSU 管理器 |
+          | KSU | 原版 KernelSU | KernelSU 管理器 |
+          | KSUNext | KernelSU-Next | KernelSU-Next 管理器 |
+
+          ## SUSFS 情况
+          - 文件名含 `_SUSFS` 的才内置 SUSFS
+          - ReSukiSU / BakaSU / KernelSU：SUSFS 已验证可用（`ksud susfs status = true`）
+          - SukiSU-Ultra：需固定版本组合才能编译，功能待验证
+          - KernelSU-Next：当前上游补丁缺 `DEFAULT_KSU_MNT_ID` 等符号，**暂无 SUSFS 版本**
+          - 独立文件 `susfs-components.tar.gz` 为补丁包与说明
+
+          ## GZVM（GenieZone VM）情况
+          - 文件名含 `_GZVM` 的编译了 `gzvm.ko`
+          - 模块可 `insmod` 成功，驱动注册正常
+          - **但 `/dev/gzvm` 不存在**：固件设备树缺少 `mediatek,geniezone-hyp` 节点，驱动无法 probe
+          - 需修改 dtbo 添加节点才可能启用；当前不可用，仅作研究保留
+          - `gzvm.ko` 独立上传，需与对应内核匹配使用
+
+          ## BBR
+          - 全部内核已内置 BBR，默认 CUBIC
+          - `bbr-switch.sh` 可运行时切换（需 root，全局生效，仅新连接）
+
+          ## 已知问题
+          - KernelSU-Next + SUSFS 组合缺失（等上游补丁更新）
+          - gzvm 需 DT 支持
+          - 旧 tag `v6.1.157-mt6989-20261031-2332` 已被本版取代（sukisu 选项为 ReSukiSU 源，已改名对齐）
+          EOF
           gh release create "$TAG" -R "$GITHUB_REPOSITORY" \
-            -t "MT6989 6.1.157 SUSFS+GZVM 五管理器 $(date +%Y-%m-%d)" \
-            -n "一加 Ace 5 竞速版 (MT6989) 6.1.157 OKI 内核。\n\n管理器: ReSukiSU(sukisu) / SukiSU-Ultra(sukisuultra) / BakaSU / KernelSU / KernelSU-Next\n\n本次为 SUSFS+GZVM 组。\n- 文件名含 _SUSFS 的已内置 SUSFS\n- gzvm.ko 独立提供，需固件 DT 支持（当前机型无节点）\n- BBR 已内置，默认 CUBIC，可用 bbr-switch.sh 切换\n- 说明: 原 sukisu 选项为 ReSukiSU 源码，已按功能改名对齐。"
+            -t "MT6989 6.1.157 全变体（SUSFS/GZVM）$(date +%Y-%m-%d)" \
+            -F /tmp/notes.md
           find artifacts -type f \( -name '*.zip' -o -name '*.ko' -o -name '*.gz' \) | while IFS= read -r f; do
             echo "upload $f"
             gh release upload "$TAG" "$f" -R "$GITHUB_REPOSITORY" || true
