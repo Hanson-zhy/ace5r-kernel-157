@@ -260,7 +260,8 @@ jobs:
             sed -i "s/DKSU_VERSION=16/DKSU_VERSION=${KSU_VERSION}/" kernel/Kbuild
           elif [[ ${{ github.event.inputs.ksu_type }} == "sukisuultra" ]]; then
             echo "配置SukiSU Ultra(含SUSFS Kconfig补丁)..."
-            curl -LSs "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/refs/heads/main/kernel/setup.sh" | bash -s main
+            # 使用参考项目验证过的版本组合（SukiSU 5da5299 + SUSFS 0c6766b）
+            curl -LSs "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/refs/heads/main/kernel/setup.sh" | bash -s 5da529942987b834c2b02a4819eaa298a8383bf4
             cd ./KernelSU
             if ! grep -q 'KSU_SUSFS' kernel/Kconfig 2>/dev/null; then
               printf '\nconfig KSU_SUSFS\n\tbool "SUSFS support"\n\tdefault y\n' >> kernel/Kconfig
@@ -290,7 +291,10 @@ jobs:
           cd kernel_workspace
           echo "应用SUSFS补丁(cctv18/susfs4oki oki-android14-6.1)..."
           KT="${{ matrix.ksu_type }}${{ github.event.inputs.ksu_type }}"
-          if [[ "$KT" == *"sukisuultra"* || "$KT" == *"ksunext"* ]]; then
+          if [[ "$KT" == *"sukisuultra"* ]]; then
+            git clone -q https://github.com/ShirkNeko/susfs4ksu.git susfs4ksu -b gki-android14-6.1
+            git -C susfs4ksu checkout -q 0c6766bf8036f6592fcf59f7f462981f8998b32b
+          elif [[ "$KT" == *"ksunext"* ]]; then
             git clone --depth=1 -q https://github.com/ShirkNeko/susfs4ksu.git susfs4ksu -b gki-android14-6.1
           else
             git clone --depth=1 -q https://github.com/cctv18/susfs4oki.git susfs4ksu -b oki-android14-6.1
