@@ -603,6 +603,10 @@ jobs:
           - KernelSU-Next：当前 SUSFS 补丁与 KSU-Next 源码版本不匹配（缺 `VFSMOUNT_MNT_FLAGS_KSU_UNSHARED_MNT`、`DEFAULT_KSU_MNT_ID`），**本版未提供 SUSFS 版本**；正在按上游 simonpunk 补丁验证，通过后补发
           - 独立文件 `susfs-components.tar.gz` 为补丁包与说明
 
+          ## 验证记录（截至本版）
+          - SukiSU-Ultra + SUSFS + GZVM：已验证成功（run 41216260578，固定版本 5da5299 + 0c6766b），本版内置
+          - KernelSU-Next + SUSFS：验证失败（run 41218027712，simonpunk 补丁缺 susfs_is_current_ksu_domain / CL_COPY_MNT_NS / DEFAULT_KSU_MNT_ID / VFSMOUNT_MNT_FLAGS_KSU_UNSHARED_MNT），本版不含
+
           ## GZVM（GenieZone VM）情况
           - 文件名含 `_GZVM` 的编译了 `gzvm.ko`
           - 模块可 `insmod` 成功，驱动注册正常
