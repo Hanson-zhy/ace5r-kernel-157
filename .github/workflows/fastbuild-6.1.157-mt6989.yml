@@ -559,7 +559,7 @@ jobs:
           gh run download $GITHUB_RUN_ID -n "${{ needs.build.outputs.ak3name }}" -R $GITHUB_REPOSITORY || true
           gh run download $GITHUB_RUN_ID -p "gzvm-modules-*" -R $GITHUB_REPOSITORY || true
           ls -lR .
-          TAG="6.1.157-mt6989-$(date +'%Y%m%d-%H%M')"
+          TAG="6.1.157-mt6989-$(date +'%Y%m%d')-${GITHUB_RUN_ID}"
           gh release create "$TAG" -R "$GITHUB_REPOSITORY" \
             -t "MT6989 6.1.157 OKI内核 $(date +'%Y-%m-%d')" \
             -n "一加Ace5竞速版(MT6989) 6.1.157 OKI内核。变体: ${{ github.event.inputs.ksu_type }} / SUSFS=${{ github.event.inputs.susfs_enable }} / GZVM=${{ github.event.inputs.gzvm_enable }}。详见zip内ak3注释。"
