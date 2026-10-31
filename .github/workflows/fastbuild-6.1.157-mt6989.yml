@@ -407,11 +407,8 @@ jobs:
           CONFIG_TCP_CONG_HTCP=y
           CONFIG_TCP_CONG_BRUTAL=y
           EOF
-            if [[ "${{ github.event.inputs.bbr_enable }}" == "default" ]]; then
-              echo "CONFIG_DEFAULT_TCP_CONG=\"bbr\"" >> "$DEFCONFIG_FILE"
-            else
-              echo "CONFIG_DEFAULT_TCP_CONG=\"cubic\"" >> "$DEFCONFIG_FILE"
-            fi
+            # 所有分支都显式固定 CUBIC（不提供默认 BBR 版本）
+            echo "CONFIG_DEFAULT_TCP_CONG=\"cubic\"" >> "$DEFCONFIG_FILE"
           fi
 
           # SSG IO调度器
