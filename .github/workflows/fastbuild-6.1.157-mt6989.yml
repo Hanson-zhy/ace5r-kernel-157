@@ -392,7 +392,10 @@ jobs:
             cd ..
           fi
 
-          # BBR等拥塞控制算法
+          # 默认拥塞控制：固定 CUBIC（除非显式选择 default BBR）
+          echo 'CONFIG_DEFAULT_TCP_CONG="cubic"' >> "$DEFCONFIG_FILE"
+          echo 'CONFIG_TCP_CONG_CUBIC=y' >> "$DEFCONFIG_FILE"
+          # BBR等拥塞控制算法（可选编入）
           if [[ "${{ github.event.inputs.bbr_enable }}" != "false" ]]; then
             cat >> "$DEFCONFIG_FILE" << 'EOF'
           CONFIG_TCP_CONG_ADVANCED=y
@@ -404,9 +407,6 @@ jobs:
           CONFIG_TCP_CONG_HTCP=y
           CONFIG_TCP_CONG_BRUTAL=y
           EOF
-            if [[ "${{ github.event.inputs.bbr_enable }}" != "default" ]]; then
-              echo 'CONFIG_DEFAULT_TCP_CONG="cubic"' >> "$DEFCONFIG_FILE"
-            fi
             if [[ "${{ github.event.inputs.bbr_enable }}" == "default" ]]; then
               echo "CONFIG_DEFAULT_TCP_CONG=\"bbr\"" >> "$DEFCONFIG_FILE"
             else
