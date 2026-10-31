@@ -18,26 +18,26 @@ jobs:
       max-parallel: 5
       matrix:
         include:
-    - { ksu_type: sukisu, susfs: 'true', gzvm: 'true' }
-    - { ksu_type: sukisu, susfs: 'true', gzvm: 'false' }
-    - { ksu_type: sukisu, susfs: 'false', gzvm: 'true' }
-    - { ksu_type: sukisu, susfs: 'false', gzvm: 'false' }
-    - { ksu_type: sukisuultra, susfs: 'true', gzvm: 'true' }
-    - { ksu_type: sukisuultra, susfs: 'true', gzvm: 'false' }
-    - { ksu_type: sukisuultra, susfs: 'false', gzvm: 'true' }
-    - { ksu_type: sukisuultra, susfs: 'false', gzvm: 'false' }
-    - { ksu_type: bakasu, susfs: 'true', gzvm: 'true' }
-    - { ksu_type: bakasu, susfs: 'true', gzvm: 'false' }
-    - { ksu_type: bakasu, susfs: 'false', gzvm: 'true' }
-    - { ksu_type: bakasu, susfs: 'false', gzvm: 'false' }
-    - { ksu_type: ksu, susfs: 'true', gzvm: 'true' }
-    - { ksu_type: ksu, susfs: 'true', gzvm: 'false' }
-    - { ksu_type: ksu, susfs: 'false', gzvm: 'true' }
-    - { ksu_type: ksu, susfs: 'false', gzvm: 'false' }
-    - { ksu_type: ksunext, susfs: 'true', gzvm: 'true' }
-    - { ksu_type: ksunext, susfs: 'true', gzvm: 'false' }
-    - { ksu_type: ksunext, susfs: 'false', gzvm: 'true' }
-    - { ksu_type: ksunext, susfs: 'false', gzvm: 'false' }
+          - { ksu_type: sukisu, susfs: 'true', gzvm: 'true' }
+          - { ksu_type: sukisu, susfs: 'true', gzvm: 'false' }
+          - { ksu_type: sukisu, susfs: 'false', gzvm: 'true' }
+          - { ksu_type: sukisu, susfs: 'false', gzvm: 'false' }
+          - { ksu_type: sukisuultra, susfs: 'true', gzvm: 'true' }
+          - { ksu_type: sukisuultra, susfs: 'true', gzvm: 'false' }
+          - { ksu_type: sukisuultra, susfs: 'false', gzvm: 'true' }
+          - { ksu_type: sukisuultra, susfs: 'false', gzvm: 'false' }
+          - { ksu_type: bakasu, susfs: 'true', gzvm: 'true' }
+          - { ksu_type: bakasu, susfs: 'true', gzvm: 'false' }
+          - { ksu_type: bakasu, susfs: 'false', gzvm: 'true' }
+          - { ksu_type: bakasu, susfs: 'false', gzvm: 'false' }
+          - { ksu_type: ksu, susfs: 'true', gzvm: 'true' }
+          - { ksu_type: ksu, susfs: 'true', gzvm: 'false' }
+          - { ksu_type: ksu, susfs: 'false', gzvm: 'true' }
+          - { ksu_type: ksu, susfs: 'false', gzvm: 'false' }
+          - { ksu_type: ksunext, susfs: 'true', gzvm: 'true' }
+          - { ksu_type: ksunext, susfs: 'true', gzvm: 'false' }
+          - { ksu_type: ksunext, susfs: 'false', gzvm: 'true' }
+          - { ksu_type: ksunext, susfs: 'false', gzvm: 'false' }
     outputs:
       ksuver: ${{ steps.ksu_version.outputs.ksuver }}
       ak3name: ${{ steps.create_zip.outputs.ak3name }}
