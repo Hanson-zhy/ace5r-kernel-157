@@ -19,6 +19,7 @@ on:
         options:
           - 'ksunext'
           - 'sukisu'
+          - 'sukisuultra'
           - 'ksu'
           - 'bakasu'
           - 'none'
@@ -257,6 +258,17 @@ jobs:
             echo "KSUVER=$KSU_VERSION" >> $GITHUB_ENV
             echo "ksuver=$KSU_VERSION" >> $GITHUB_OUTPUT
             sed -i "s/DKSU_VERSION=16/DKSU_VERSION=${KSU_VERSION}/" kernel/Kbuild
+          elif [[ ${{ github.event.inputs.ksu_type }} == "sukisuultra" ]]; then
+            echo "配置SukiSU Ultra(含SUSFS Kconfig补丁)..."
+            curl -LSs "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/refs/heads/main/kernel/setup.sh" | bash -s main
+            cd ./KernelSU
+            if ! grep -q 'KSU_SUSFS' kernel/Kconfig 2>/dev/null; then
+              printf '\nconfig KSU_SUSFS\n\tbool "SUSFS support"\n\tdefault y\n' >> kernel/Kconfig
+            fi
+            echo 'CONFIG_KSU_SUSFS=y' >> ../common/arch/arm64/configs/gki_defconfig
+            KSU_VERSION=$(expr $(git rev-list --count HEAD) + 30000 2>/dev/null || echo 114514)
+            echo "KSUVER=$KSU_VERSION" >> $GITHUB_ENV
+            echo "ksuver=$KSU_VERSION" >> $GITHUB_OUTPUT
           elif [[ ${{ github.event.inputs.ksu_type }} == "bakasu" ]]; then
             echo "配置BakaSU..."
             curl -LSs "https://raw.githubusercontent.com/Baka-SU/BakaSU/refs/heads/main/kernel/setup.sh" | bash -s main
@@ -516,6 +528,8 @@ jobs:
             KSU_TYPENAME="KSU"
           elif [[ ${{ github.event.inputs.ksu_type }} == "bakasu" ]]; then
             KSU_TYPENAME="BakaSU"
+          elif [[ ${{ github.event.inputs.ksu_type }} == "sukisuultra" ]]; then
+            KSU_TYPENAME="SukiSUUltra"
           else
             KSU_TYPENAME="none"
           fi
