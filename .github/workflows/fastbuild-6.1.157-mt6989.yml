@@ -392,7 +392,7 @@ jobs:
         run: |
           cd kernel_workspace
           echo "CONFIG_BBG=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_MTK_GZVM=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_MTK_GZVM=m" >> ./common/arch/arm64/configs/gki_defconfig
           cd ./common
           curl -sSL https://github.com/cctv18/Baseband-guard/raw/master/setup.sh | bash
           sed -i '/^config LSM$/,/^help$/{ /^[[:space:]]*default/ { /baseband_guard/! s/selinux/selinux,baseband_guard/ } }' security/Kconfig
@@ -444,6 +444,14 @@ jobs:
           echo "内核编译完成"
           ccache -s
           df -h
+
+      - name: 编译gzvm模块
+        run: |
+          cd kernel_workspace/common
+          make -j$(nproc) LLVM=1 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- CC="ccache clang" LD=ld.lld O=out KCFLAGS+=-O2 KCFLAGS+=-Wno-error WERROR=0 HOSTCFLAGS=-Wno-error modules
+          mkdir -p ../gzkmods
+          find out -name "*.ko" 2>/dev/null | grep -iE "geniezone|gzvm" | xargs -r -I{} cp -f {} ../gzkmods/
+          ls -l ../gzkmods || true
 
       - name: 保存ccache缓存
         if: inputs.ccache_update || steps.ccache-restore.outputs.cache-hit != 'true'
@@ -507,6 +515,14 @@ jobs:
         with:
           name: ${{ steps.create_zip.outputs.ak3name }}
           path: ${{ github.workspace }}/kernel_workspace/AnyKernel*.zip
+          archive: false
+
+      - name: 上传gzvm模块
+        uses: actions/upload-artifact@v7
+        with:
+          name: gzvm-modules-${{ github.run_id }}
+          path: ${{ github.workspace }}/kernel_workspace/gzkmods/*.ko
+          if-no-files-found: warn
           archive: false
 
   release:
