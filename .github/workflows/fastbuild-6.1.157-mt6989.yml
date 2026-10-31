@@ -502,8 +502,8 @@ jobs:
           fi
           SUFFIX="${{ github.event.inputs.kernel_suffix }}"
           if [[ -n "$SUFFIX" ]]; then
-            SF="SUSFS${{ github.event.inputs.susfs_enable }}"
-          GZ="GZVM${{ github.event.inputs.gzvm_enable }}"
+            if [[ "${{ github.event.inputs.susfs_enable }}" == "true" ]]; then SF="SUSFS"; else SF="unSUSFS"; fi
+          if [[ "${{ github.event.inputs.gzvm_enable }}" == "true" ]]; then GZ="GZVM"; else GZ="unGZVM"; fi
           AK3_NAME=AnyKernel3_${KSU_TYPENAME}_${SF}_${GZ}_${{ env.KSUVER }}_6.1.157_${SUFFIX}.zip
           else
             AK3_NAME=AnyKernel3_${KSU_TYPENAME}_${{ env.KSUVER }}_6.1.157_${{ env.KERNEL_NAME }}.zip
