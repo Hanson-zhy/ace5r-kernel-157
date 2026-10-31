@@ -284,6 +284,23 @@ jobs:
           patch -p1 -F 3 < 50_add_susfs_in_gki-android14-6.1.patch || true
           patch -p1 -N -F 3 < 69_hide_stuff.patch || true
 
+      - name: 收集SUSFS组件
+        if: inputs.susfs_enable && github.event.inputs.ksu_type != 'none'
+        run: |
+          cd kernel_workspace
+          mkdir -p susfs_out
+          cp -f ./common/50_add_susfs_in_gki-android14-6.1.patch susfs_out/ 2>/dev/null || true
+          cp -f ./common/69_hide_stuff.patch susfs_out/ 2>/dev/null || true
+          {
+            echo "SUSFS 组件 (cctv18/susfs4oki, oki-android14-6.1)"
+            echo "补丁: 50_add_susfs_in_gki-android14-6.1.patch + 69_hide_stuff.patch"
+            echo "用法: patch -p1 < 50_add_susfs_in_gki-android14-6.1.patch"
+            echo "      patch -p1 -N < 69_hide_stuff.patch"
+            echo "配置参考: ksu_susfs config / add_sus_path / set_uname / set_cmdline_or_bootconfig"
+          } > susfs_out/README.txt
+          tar -czf susfs_out/susfs-components.tar.gz -C susfs_out --exclude=susfs-components.tar.gz . 2>/dev/null || true
+          ls -l susfs_out
+
       - name: 应用lz4 1.10.0 & zstd 1.5.7补丁
         if: inputs.lz4_enable
         run: |
@@ -547,6 +564,16 @@ jobs:
           path: ${{ github.workspace }}/kernel_workspace/gzkmods/*.ko
           if-no-files-found: warn
           archive: false
+
+      - name: 上传SUSFS组件
+        if: inputs.susfs_enable && github.event.inputs.ksu_type != 'none'
+        uses: actions/upload-artifact@v7
+        with:
+          name: susfs-components-${{ github.run_id }}
+          path: |
+            ${{ github.workspace }}/kernel_workspace/susfs_out/susfs-components.tar.gz
+            ${{ github.workspace }}/kernel_workspace/susfs_out/*.patch
+          if-no-files-found: warn
 
   release:
     if: inputs.make_release
