@@ -243,7 +243,7 @@ jobs:
           fi
 
       - name: 应用SUSFS补丁
-        if: true
+        if: matrix.susfs == 'true'
         run: |
           cd kernel_workspace
           echo "应用SUSFS补丁(cctv18/susfs4oki oki-android14-6.1)..."
@@ -566,9 +566,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: 下载全部工件
-        uses: actions/download-artifact@v4
-        with:
-          path: artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p artifacts
+          for i in 1 2 3; do
+            gh run download "$GITHUB_RUN_ID" -R "$GITHUB_REPOSITORY" -D artifacts && break || sleep 10
+          done
+          find artifacts -type f | head -30
       - name: 发布Release
         env:
           GH_TOKEN: ${{ github.token }}
