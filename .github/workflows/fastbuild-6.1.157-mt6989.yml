@@ -471,7 +471,7 @@ jobs:
           sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL &
 
           make -j$(nproc --all) LLVM=1 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- CC="ccache clang" LD="ld.lld" HOSTLD=ld.lld O=out KCFLAGS+=-O2 KCFLAGS+=-Wno-error gki_defconfig &&
-          make -j$(nproc --all) LLVM=1 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- CC="$(pwd)/cc-wrapper" LD="$(pwd)/ld-wrapper" HOSTLD=ld.lld O=out KCFLAGS+=-O2 KCFLAGS+=-Wno-error Image
+          make -j$(nproc --all) LLVM=1 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- CC="$(pwd)/cc-wrapper" LD="$(pwd)/ld-wrapper" HOSTLD=ld.lld O=out KCFLAGS+=-O2 KCFLAGS+=-Wno-error Image modules
 
           echo "内核编译完成"
           ccache -s
@@ -483,7 +483,6 @@ jobs:
           cd kernel_workspace/common
           export PATH="$GITHUB_WORKSPACE/kernel_workspace/clang20/bin:$PATH"
           export LLVM=1 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu-
-          make -j$(nproc) LLVM=1 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- CC="ccache clang" LD=ld.lld O=out KCFLAGS+=-O2 KCFLAGS+=-Wno-error WERROR=0 HOSTCFLAGS=-Wno-error modules
           mkdir -p ../gzkmods
           find out -name "*.ko" 2>/dev/null | grep -iE "geniezone|gzvm" | xargs -r -I{} cp -f {} ../gzkmods/
           ls -l ../gzkmods || true
