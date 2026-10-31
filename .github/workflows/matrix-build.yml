@@ -489,7 +489,7 @@ jobs:
           if [[ ${{ matrix.ksu_type }} == "ksunext" ]]; then
             KSU_TYPENAME="KSUNext"
           elif [[ ${{ matrix.ksu_type }} == "sukisu" ]]; then
-            KSU_TYPENAME="SukiSU"
+            KSU_TYPENAME="ReSukiSU"
           elif [[ ${{ matrix.ksu_type }} == "ksu" ]]; then
             KSU_TYPENAME="KSU"
           elif [[ ${{ matrix.ksu_type }} == "bakasu" ]]; then
@@ -583,13 +583,13 @@ jobs:
           ## 管理器对应
           | 文件名前缀 | 源码 | 配套管理器 |
           |---|---|---|
-          | SukiSU | ReSukiSU | ReSukiSU / BakaSU 管理器 |
+          | ReSukiSU | ReSukiSU | ReSukiSU / BakaSU 管理器 |
           | SukiSUUltra | SukiSU-Ultra（固定 5da5299 + SUSFS 0c6766b） | SukiSU 管理器 v4.3.0 |
           | BakaSU | BakaSU | BakaSU 管理器 |
           | KSU | 原版 KernelSU | KernelSU 管理器 |
           | KSUNext | KernelSU-Next | KernelSU-Next 管理器 |
 
-          > 命名说明：原 `sukisu` 选项实际拉取的是 **ReSukiSU** 源码，已按功能改名为 `SukiSU`（ReSukiSU 源）；旧 tag `v6.1.157-mt6989-20261031-2332` 已被本版取代。
+          > 命名说明：原 `sukisu` 选项实际拉取的是 **ReSukiSU** 源码，已按功能改名为 `ReSukiSU`；旧 tag `v6.1.157-mt6989-20261031-2332` 已被本版取代。
 
           ## SUSFS 情况
           - 文件名含 `_SUSFS` 的才内置 SUSFS
