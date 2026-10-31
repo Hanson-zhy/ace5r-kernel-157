@@ -595,7 +595,7 @@ jobs:
           - 文件名含 `_SUSFS` 的才内置 SUSFS
           - ReSukiSU / BakaSU / KernelSU：SUSFS 已验证可用（`ksud susfs status = true`）
           - SukiSU-Ultra：需固定版本组合才能编译，功能待验证
-          - KernelSU-Next：当前上游补丁缺 `DEFAULT_KSU_MNT_ID` 等符号，**暂无 SUSFS 版本**
+          - KernelSU-Next：当前 SUSFS 补丁与 KSU-Next 源码版本不匹配（缺 `VFSMOUNT_MNT_FLAGS_KSU_UNSHARED_MNT`、`DEFAULT_KSU_MNT_ID`），**本版未提供 SUSFS 版本**；正在按上游 simonpunk 补丁验证，通过后补发
           - 独立文件 `susfs-components.tar.gz` 为补丁包与说明
 
           ## GZVM（GenieZone VM）情况
