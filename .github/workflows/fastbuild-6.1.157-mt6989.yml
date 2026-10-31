@@ -289,7 +289,8 @@ jobs:
         run: |
           cd kernel_workspace
           echo "应用SUSFS补丁(cctv18/susfs4oki oki-android14-6.1)..."
-          if [[ "${{ matrix.ksu_type }}" == "sukisuultra" || "${{ github.event.inputs.ksu_type }}" == "sukisuultra" ]]; then
+          KT="${{ matrix.ksu_type }}${{ github.event.inputs.ksu_type }}"
+          if [[ "$KT" == *"sukisuultra"* || "$KT" == *"ksunext"* ]]; then
             git clone --depth=1 -q https://github.com/ShirkNeko/susfs4ksu.git susfs4ksu -b gki-android14-6.1
           else
             git clone --depth=1 -q https://github.com/cctv18/susfs4oki.git susfs4ksu -b oki-android14-6.1
