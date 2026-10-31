@@ -133,6 +133,7 @@ jobs:
           done
           echo "stubbed: $n"
           sed -i 's/override CFLAGS += -Werror -Wall/override CFLAGS += -Wall/' common/tools/lib/bpf/Makefile 2>/dev/null || true
+          cp -f ref134/block/blk-sec.h common/block/ 2>/dev/null || true
           echo "源码初始化完成"
 
           # 清除ABI保护 & 去除dirty后缀
