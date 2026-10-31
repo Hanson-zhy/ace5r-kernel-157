@@ -295,7 +295,7 @@ jobs:
             git clone -q https://github.com/ShirkNeko/susfs4ksu.git susfs4ksu -b gki-android14-6.1
             git -C susfs4ksu checkout -q 0c6766bf8036f6592fcf59f7f462981f8998b32b
           elif [[ "$KT" == *"ksunext"* ]]; then
-            git clone --depth=1 -q https://github.com/ShirkNeko/susfs4ksu.git susfs4ksu -b gki-android14-6.1
+            git clone -q https://gitlab.com/simonpunk/susfs4ksu.git susfs4ksu -b gki-android14-6.1
           else
             git clone --depth=1 -q https://github.com/cctv18/susfs4oki.git susfs4ksu -b oki-android14-6.1
           fi
