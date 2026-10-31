@@ -481,7 +481,9 @@ jobs:
         if: inputs.gzvm_enable
         run: |
           cd kernel_workspace/common
-          yes "" | make LLVM=1 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- O=out olddefconfig >/dev/null 2>&1 || true
+          export PATH="$GITHUB_WORKSPACE/kernel_workspace/clang20/bin:$PATH"
+          export LLVM=1 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu-
+          yes "" | make O=out olddefconfig >/dev/null 2>&1 || true
           make -j$(nproc) LLVM=1 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- CC="ccache clang" LD=ld.lld O=out KCFLAGS+=-O2 KCFLAGS+=-Wno-error WERROR=0 HOSTCFLAGS=-Wno-error modules
           mkdir -p ../gzkmods
           find out -name "*.ko" 2>/dev/null | grep -iE "geniezone|gzvm" | xargs -r -I{} cp -f {} ../gzkmods/
