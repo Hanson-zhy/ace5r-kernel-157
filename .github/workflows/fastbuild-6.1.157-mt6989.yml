@@ -266,9 +266,6 @@ jobs:
               printf '\nconfig KSU_SUSFS\n\tbool "SUSFS support"\n\tdefault y\n' >> kernel/Kconfig
             fi
             echo 'CONFIG_KSU_SUSFS=y' >> ../common/arch/arm64/configs/gki_defconfig
-            # 注入 KSU-Next 风格 hook 的兼容垫片
-            cp -f "$GITHUB_WORKSPACE/local/susfs_compat.c" ../common/kernel/susfs_compat.c
-            echo 'obj-y += susfs_compat.o' >> ../common/kernel/Makefile
             KSU_VERSION=$(expr $(git rev-list --count HEAD) + 30000 2>/dev/null || echo 114514)
             echo "KSUVER=$KSU_VERSION" >> $GITHUB_ENV
             echo "ksuver=$KSU_VERSION" >> $GITHUB_OUTPUT
@@ -292,7 +289,11 @@ jobs:
         run: |
           cd kernel_workspace
           echo "应用SUSFS补丁(cctv18/susfs4oki oki-android14-6.1)..."
-          git clone --depth=1 -q https://github.com/cctv18/susfs4oki.git susfs4ksu -b oki-android14-6.1
+          if [[ "${{ matrix.ksu_type }}" == "sukisuultra" || "${{ github.event.inputs.ksu_type }}" == "sukisuultra" ]]; then
+            git clone --depth=1 -q https://github.com/ShirkNeko/susfs4ksu.git susfs4ksu -b gki-android14-6.1
+          else
+            git clone --depth=1 -q https://github.com/cctv18/susfs4oki.git susfs4ksu -b oki-android14-6.1
+          fi
           wget -q https://github.com/cctv18/oppo_oplus_realme_sm8650/raw/main/other_patch/69_hide_stuff.patch -O ./common/69_hide_stuff.patch
           cp ./susfs4ksu/kernel_patches/50_add_susfs_in_gki-android14-6.1.patch ./common/
           cp ./susfs4ksu/kernel_patches/fs/* ./common/fs/
