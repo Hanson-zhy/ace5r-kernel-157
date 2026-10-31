@@ -501,7 +501,9 @@ jobs:
           fi
           SUFFIX="${{ github.event.inputs.kernel_suffix }}"
           if [[ -n "$SUFFIX" ]]; then
-            AK3_NAME=AnyKernel3_${KSU_TYPENAME}_${{ env.KSUVER }}_6.1.157_${SUFFIX}.zip
+            SF="SUSFS${{ github.event.inputs.susfs_enable }}"
+          GZ="GZVM${{ github.event.inputs.gzvm_enable }}"
+          AK3_NAME=AnyKernel3_${KSU_TYPENAME}_${SF}_${GZ}_${{ env.KSUVER }}_6.1.157_${SUFFIX}.zip
           else
             AK3_NAME=AnyKernel3_${KSU_TYPENAME}_${{ env.KSUVER }}_6.1.157_${{ env.KERNEL_NAME }}.zip
           fi
@@ -553,13 +555,18 @@ jobs:
     steps:
       - name: 下载工件并发布
         run: |
-          mkdir -p release_zips
-          cd release_zips
-          gh run download $GITHUB_RUN_ID -n "${{ needs.build.outputs.ak3name }}" -R $GITHUB_REPOSITORY
+          mkdir -p release_zips && cd release_zips
+          gh run download $GITHUB_RUN_ID -n "${{ needs.build.outputs.ak3name }}" -R $GITHUB_REPOSITORY || true
+          gh run download $GITHUB_RUN_ID -p "gzvm-modules-*" -R $GITHUB_REPOSITORY || true
+          ls -lR .
           TAG="6.1.157-mt6989-$(date +'%Y%m%d-%H%M')"
-          gh release create "$TAG" *.zip \
-            -R "$GITHUB_REPOSITORY" \
+          gh release create "$TAG" -R "$GITHUB_REPOSITORY" \
             -t "MT6989 6.1.157 OKI内核 $(date +'%Y-%m-%d')" \
-            -N "一加Ace5竞速版 (MT6989) 6.1.157 OKI内核,基于boot_a原版版本号精确匹配构建。详见zip内ak3注释。"
+            -n "一加Ace5竞速版(MT6989) 6.1.157 OKI内核。变体: ${{ github.event.inputs.ksu_type }} / SUSFS=${{ github.event.inputs.susfs_enable }} / GZVM=${{ github.event.inputs.gzvm_enable }}。详见zip内ak3注释。"
+          found=0
+          while IFS= read -r f; do
+            gh release upload "$TAG" "$f" -R "$GITHUB_REPOSITORY" && found=1
+          done < <(find . -type f \( -name '*.zip' -o -name '*.ko' \)
+          [ "$found" = "1" ] || echo "WARN: no assets uploaded"
         env:
           GH_TOKEN: ${{ github.token }}
