@@ -570,10 +570,14 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           mkdir -p artifacts
-          for i in 1 2 3; do
-            gh run download "$GITHUB_RUN_ID" -R "$GITHUB_REPOSITORY" -D artifacts && break || sleep 10
-          done
-          find artifacts -type f | head -30
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/artifacts?per_page=100" \
+            -q '.artifacts[] | "\(.id)\t\(.name)"' | while IFS=$'\t' read -r id name; do
+              echo "download $name ($id)"
+              curl -sL -H "Authorization: Bearer $GH_TOKEN" \
+                -o "artifacts/$name" \
+                "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/artifacts/$id/zip" || true
+            done
+          ls -lh artifacts | head -30
       - name: 发布Release
         env:
           GH_TOKEN: ${{ github.token }}
