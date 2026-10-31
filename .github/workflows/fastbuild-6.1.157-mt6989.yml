@@ -262,6 +262,8 @@ jobs:
             curl -LSs "https://raw.githubusercontent.com/Baka-SU/BakaSU/refs/heads/main/kernel/setup.sh" | bash -s main
             cd ./KernelSU
             KSU_VERSION=$(expr $(git rev-list --count HEAD) + 30000 2>/dev/null || echo 114514)
+            # 强制内核内置版本号与 SukiSU 管理器 v4.3.0 (41100) 匹配
+            sed -i 's/^KSU_VERSION     := .*/KSU_VERSION     := 41100/' kernel/Kbuild
             echo "KSUVER=$KSU_VERSION" >> $GITHUB_ENV
             echo "ksuver=$KSU_VERSION" >> $GITHUB_OUTPUT
           else
