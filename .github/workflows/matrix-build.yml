@@ -1,4 +1,4 @@
-name: MT6989 6.1.157 全变体矩阵构建
+name: MT6989 6.1.157 SUSFS+GZVM 五管理器批量
 env:
   TZ: Asia/Shanghai
   ANDROID_VERSION: 'android14'
@@ -15,11 +15,9 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
-      max-parallel: 6
+      max-parallel: 5
       matrix:
-        ksu_type: [sukisu, ksunext, ksu, bakasu]
-        susfs: ['true', 'false']
-        gzvm: ['true', 'false']
+        ksu_type: [sukisu, sukisuultra, bakasu, ksu, ksunext]
     outputs:
       ksuver: ${{ steps.ksu_version.outputs.ksuver }}
       ak3name: ${{ steps.create_zip.outputs.ak3name }}
@@ -199,7 +197,8 @@ jobs:
             sed -i "s/DKSU_VERSION=16/DKSU_VERSION=${KSU_VERSION}/" kernel/Kbuild
           elif [[ ${{ matrix.ksu_type }} == "sukisuultra" ]]; then
             echo "配置SukiSU Ultra(含SUSFS Kconfig补丁)..."
-            curl -LSs "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/refs/heads/main/kernel/setup.sh" | bash -s main
+            # 使用参考项目验证过的版本组合（SukiSU 5da5299 + SUSFS 0c6766b）
+            curl -LSs "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/refs/heads/main/kernel/setup.sh" | bash -s 5da529942987b834c2b02a4819eaa298a8383bf4
             cd ./KernelSU
             if ! grep -q 'KSU_SUSFS' kernel/Kconfig 2>/dev/null; then
               printf '\nconfig KSU_SUSFS\n\tbool "SUSFS support"\n\tdefault y\n' >> kernel/Kconfig
@@ -224,11 +223,19 @@ jobs:
           fi
 
       - name: 应用SUSFS补丁
-        if: matrix.susfs == 'true'
+        if: true
         run: |
           cd kernel_workspace
           echo "应用SUSFS补丁(cctv18/susfs4oki oki-android14-6.1)..."
-          git clone --depth=1 -q https://github.com/cctv18/susfs4oki.git susfs4ksu -b oki-android14-6.1
+          KT="${{ matrix.ksu_type }}${{ matrix.ksu_type }}"
+          if [[ "$KT" == *"sukisuultra"* ]]; then
+            git clone -q https://github.com/ShirkNeko/susfs4ksu.git susfs4ksu -b gki-android14-6.1
+            git -C susfs4ksu checkout -q 0c6766bf8036f6592fcf59f7f462981f8998b32b
+          elif [[ "$KT" == *"ksunext"* ]]; then
+            git clone --depth=1 -q https://github.com/ShirkNeko/susfs4ksu.git susfs4ksu -b gki-android14-6.1
+          else
+            git clone --depth=1 -q https://github.com/cctv18/susfs4oki.git susfs4ksu -b oki-android14-6.1
+          fi
           wget -q https://github.com/cctv18/oppo_oplus_realme_sm8650/raw/main/other_patch/69_hide_stuff.patch -O ./common/69_hide_stuff.patch
           cp ./susfs4ksu/kernel_patches/50_add_susfs_in_gki-android14-6.1.patch ./common/
           cp ./susfs4ksu/kernel_patches/fs/* ./common/fs/
@@ -238,7 +245,7 @@ jobs:
           patch -p1 -N -F 3 < 69_hide_stuff.patch || true
 
       - name: 收集SUSFS组件
-        if: matrix.susfs == 'true'
+        if: true
         run: |
           cd kernel_workspace
           mkdir -p susfs_out
@@ -284,7 +291,7 @@ jobs:
             echo "CONFIG_KSU=y" >> "$DEFCONFIG_FILE"
           fi
           # SUSFS全套配置
-          if [[ ${{ matrix.susfs }} == "true" && ${{ matrix.ksu_type }} != "none" ]]; then
+          if [[ true == "true" && ${{ matrix.ksu_type }} != "none" ]]; then
             cat >> "$DEFCONFIG_FILE" << 'EOF'
           CONFIG_KSU_SUSFS=y
           CONFIG_KSU_SUSFS_HAS_MAGIC_MOUNT=y
@@ -431,7 +438,7 @@ jobs:
           df -h
 
       - name: 编译gzvm模块
-        if: matrix.gzvm == 'true'
+        if: true
         run: |
           cd kernel_workspace/common
           export PATH="$GITHUB_WORKSPACE/kernel_workspace/clang20/bin:$PATH"
@@ -475,8 +482,8 @@ jobs:
           SUFFIX="android14-11-o-gc2dad16af736"
           if [[ -n "$SUFFIX" ]]; then
             SF=""; GZ=""
-          if [[ "${{ matrix.susfs }}" == "true" ]]; then SF="_SUSFS"; fi
-          if [[ "${{ matrix.gzvm }}" == "true" ]]; then GZ="_GZVM"; fi
+          if [[ "true" == "true" ]]; then SF="_SUSFS"; fi
+          if [[ "true" == "true" ]]; then GZ="_GZVM"; fi
           AK3_NAME=AnyKernel3_${KSU_TYPENAME}${SF}${GZ}_${{ env.KSUVER }}_6.1.157_${SUFFIX}.zip
           else
             AK3_NAME=AnyKernel3_${KSU_TYPENAME}_${{ env.KSUVER }}_6.1.157_${{ env.KERNEL_NAME }}.zip
@@ -495,7 +502,7 @@ jobs:
             echo "Kernel Ver: $FULL_VERSION"
             echo "Device: OnePlus Ace5 Racing Edition (MT6989)"
             echo "KSU: ${KSU_TYPENAME} ${{ env.KSUVER }}"
-            echo "susfs: ${{ matrix.susfs }}"
+            echo "susfs: true"
             echo "LZ4/ZSTD: true"
             echo "IPset: true"
             echo "BBR: true"
@@ -512,7 +519,7 @@ jobs:
           archive: false
 
       - name: 上传gzvm模块
-        if: matrix.gzvm == 'true'
+        if: true
         uses: actions/upload-artifact@v7
         with:
           name: gzvm-modules-${{ github.run_id }}
@@ -521,7 +528,7 @@ jobs:
           archive: false
 
       - name: 上传SUSFS组件
-        if: matrix.susfs == 'true'
+        if: true
         uses: actions/upload-artifact@v7
         with:
           name: susfs-components-${{ github.run_id }}
