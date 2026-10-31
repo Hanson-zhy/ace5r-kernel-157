@@ -536,3 +536,30 @@ jobs:
             ${{ github.workspace }}/kernel_workspace/susfs_out/susfs-components.tar.gz
             ${{ github.workspace }}/kernel_workspace/susfs_out/*.patch
           if-no-files-found: warn
+  release:
+    if: always()
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: 下载全部工件
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+      - name: 发布Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -e
+          TAG="v6.1.157-mt6989-$(date +%Y%m%d-%H%M)"
+          gh release create "$TAG" -R "$GITHUB_REPOSITORY" \
+            -t "MT6989 6.1.157 SUSFS+GZVM 五管理器 $(date +%Y-%m-%d)" \
+            -n "一加 Ace 5 竞速版 (MT6989) 6.1.157 OKI 内核。\n\n管理器: ReSukiSU(sukisu) / SukiSU-Ultra(sukisuultra) / BakaSU / KernelSU / KernelSU-Next\n\n本次为 SUSFS+GZVM 组。\n- 文件名含 _SUSFS 的已内置 SUSFS\n- gzvm.ko 独立提供，需固件 DT 支持（当前机型无节点）\n- BBR 已内置，默认 CUBIC，可用 bbr-switch.sh 切换\n- 说明: 原 sukisu 选项为 ReSukiSU 源码，已按功能改名对齐。"
+          find artifacts -type f \( -name '*.zip' -o -name '*.ko' -o -name '*.gz' \) | while IFS= read -r f; do
+            echo "upload $f"
+            gh release upload "$TAG" "$f" -R "$GITHUB_REPOSITORY" || true
+          done
+          if [ -f local/bbr-switch.sh ]; then gh release upload "$TAG" local/bbr-switch.sh -R "$GITHUB_REPOSITORY" || true; fi
