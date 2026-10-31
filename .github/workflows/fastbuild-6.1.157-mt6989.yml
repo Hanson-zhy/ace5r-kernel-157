@@ -140,6 +140,9 @@ jobs:
           echo "stubbed: $n"
           sed -i 's/override CFLAGS += -Werror -Wall/override CFLAGS += -Wall/' common/tools/lib/bpf/Makefile 2>/dev/null || true
           cp -f ref134/block/blk-sec.h common/block/ 2>/dev/null || true
+          # 厂商闭源符号兜底：fake_state（缺失于 OSS/vendor 树）
+          printf 'int fake_state;\n' > common/kernel/fake_state_compat.c
+          echo 'obj-y += fake_state_compat.o' >> common/kernel/Makefile
           echo "源码初始化完成"
 
           # 清除ABI保护 & 去除dirty后缀
