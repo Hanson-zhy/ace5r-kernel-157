@@ -23,6 +23,11 @@ on:
           - 'ksu'
           - 'bakasu'
           - 'none'
+      use_device_config:
+        description: '用设备实际 config 作为基础（修 WiFi/BT 用）'
+        required: false
+        type: boolean
+        default: 'false'
       gzvm_enable:
         description: '是否编译 gzvm(GenieZone VM)模块'
         required: true
@@ -348,6 +353,10 @@ jobs:
         run: |
           cd kernel_workspace
           DEFCONFIG_FILE=./common/arch/arm64/configs/gki_defconfig
+          if [[ "${{ github.event.inputs.use_device_config }}" == "true" ]]; then
+            cp -f "$GITHUB_WORKSPACE/local/base.config" "$DEFCONFIG_FILE"
+            echo "使用设备实际 config 作为基础"
+          fi
 
           # KSU配置
           if [[ ${{ github.event.inputs.ksu_type }} != "none" ]]; then
